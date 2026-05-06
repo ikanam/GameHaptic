@@ -1,0 +1,88 @@
+name: Android Release Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      package_type:
+        description: "Package type to build"
+        required: true
+        default: "both"
+        type: choice
+        options:
+          - both
+          - apk
+          - aab
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    name: Build signed release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Validate signing secrets
+        env:
+          RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+          RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+        run: |
+          test -n "$RELEASE_KEYSTORE_BASE64" || (echo "Missing RELEASE_KEYSTORE_BASE64 secret" && exit 1)
+          test -n "$RELEASE_STORE_PASSWORD" || (echo "Missing RELEASE_STORE_PASSWORD secret" && exit 1)
+          test -n "$RELEASE_KEY_ALIAS" || (echo "Missing RELEASE_KEY_ALIAS secret" && exit 1)
+          test -n "$RELEASE_KEY_PASSWORD" || (echo "Missing RELEASE_KEY_PASSWORD secret" && exit 1)
+
+      - name: Decode release keystore
+        run: |
+          printf "%s" "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 --decode > "$RUNNER_TEMP/release.jks"
+
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest
+
+      - name: Build signed release APK
+        if: ${{ github.event_name == 'push' || github.event.inputs.package_type == 'apk' || github.event.inputs.package_type == 'both' }}
+        env:
+          RELEASE_STORE_FILE: ${{ runner.temp }}/release.jks
+          RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+        run: ./gradlew assembleRelease
+
+      - name: Build signed release AAB
+        if: ${{ github.event_name == 'push' || github.event.inputs.package_type == 'aab' || github.event.inputs.package_type == 'both' }}
+        env:
+          RELEASE_STORE_FILE: ${{ runner.temp }}/release.jks
+          RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+        run: ./gradlew bundleRelease
+
+      - name: Upload release APK
+        if: ${{ github.event_name == 'push' || github.event.inputs.package_type == 'apk' || github.event.inputs.package_type == 'both' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: GameHaptic-release-apk
+          path: app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+
+      - name: Upload release AAB
+        if: ${{ github.event_name == 'push' || github.event.inputs.package_type == 'aab' || github.event.inputs.package_type == 'both' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: GameHaptic-release-aab
+          path: app/build/outputs/bundle/release/*.aab
+          if-no-files-found: error
