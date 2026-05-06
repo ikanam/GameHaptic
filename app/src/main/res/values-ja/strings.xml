@@ -1,0 +1,54 @@
+<resources>
+    <string name="app_name">GameHaptic</string>
+    <string name="app_tagline">ゲームのバックグラウンド音をリアルタイムの触覚フィードバックに変換します。</string>
+
+    <string name="status_waiting">開始待ち</string>
+    <string name="status_projection_cancelled">画面音声キャプチャの許可がキャンセルされました</string>
+    <string name="status_capture_starting">キャプチャを開始しています</string>
+    <string name="status_capture_stopping">停止しています</string>
+    <string name="status_running">実行中</string>
+    <string name="status_not_running">停止中</string>
+
+    <string name="action_grant">許可</string>
+    <string name="action_open_settings">開く</string>
+    <string name="action_start">開始</string>
+    <string name="action_stop">停止</string>
+    <string name="action_pending_authorization">未許可</string>
+    <string name="action_reset">リセット</string>
+
+    <string name="capture_action_description_running">キャプチャ中です。タップすると停止します。</string>
+    <string name="capture_action_description_ready">キャプチャ可能です。タップすると開始します。</string>
+    <string name="capture_action_description_locked">必要な権限がまだそろっていません。</string>
+
+    <string name="permission_audio_title">音声再生キャプチャ</string>
+    <string name="permission_audio_description">Android の AudioPlaybackCapture でゲーム音声を取得します。マイクの会話音声は録音しません。</string>
+    <string name="permission_overlay_title">非表示オーバーレイによる維持</string>
+    <string name="permission_overlay_description">透明な維持用ウィンドウを作成し、ゲームの背後で App が動作し続けられるようにします。画面には表示されません。</string>
+    <string name="permission_notification_title">フォアグラウンドサービス通知</string>
+    <string name="permission_notification_description">Android では音声キャプチャ中に常駐通知が必要です。システムによるバックグラウンドサービスの停止を防ぎやすくします。</string>
+    <string name="permission_granted">許可済み</string>
+    <string name="permission_pending">許可が必要</string>
+
+    <string name="tuning_title">触覚チューニング</string>
+    <string name="tuning_noise_gate_title">無音ゲート</string>
+    <string name="tuning_noise_gate_description">高くすると環境ノイズ、小さな音量の音楽、細かな音を無視しやすくなります。高すぎると弱い触覚を逃すことがあります。</string>
+    <string name="tuning_sensitivity_title">振動感度</string>
+    <string name="tuning_sensitivity_description">全体の振動の強さと反応しやすさを調整します。高くすると、より多くの音がはっきりした振動になります。</string>
+    <string name="tuning_music_filter_title">音楽フィルター</string>
+    <string name="tuning_music_filter_description">高くすると銃声、爆発、衝突などの瞬間的な衝撃を優先します。低くすると持続する音楽や低音リズムにも追従します。</string>
+
+    <string name="service_no_projection_permission">画面音声キャプチャの許可を取得できませんでした</string>
+    <string name="service_projection_null">MediaProjection の許可オブジェクトが空です</string>
+    <string name="service_running">ゲーム音声を HD 触覚に変換しています</string>
+    <string name="service_permission_denied">権限が不足しています: %1$s</string>
+    <string name="service_start_failed">キャプチャの開始に失敗しました: %1$s</string>
+    <string name="service_audio_record_init_failed">AudioRecord の初期化に失敗しました</string>
+    <string name="service_capture_interrupted">キャプチャが中断されました: %1$s</string>
+    <string name="service_stopped">停止しました</string>
+
+    <string name="notification_content_with_score">ゲーム音声をリアルタイム解析中。触覚強度 %1$.1f</string>
+    <string name="notification_content_idle">ゲーム音声を解析して触覚を出力しています</string>
+    <string name="notification_title_running">GameHaptic は実行中です</string>
+    <string name="notification_channel_name">GameHaptic キャプチャ</string>
+    <string name="notification_channel_description">ゲーム音声を触覚へ変換するバックグラウンドキャプチャ状態</string>
+</resources>

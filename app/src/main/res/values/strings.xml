@@ -1,0 +1,54 @@
+<resources>
+    <string name="app_name">GameHaptic</string>
+    <string name="app_tagline">Convert game background audio into real-time haptic feedback.</string>
+
+    <string name="status_waiting">Waiting to start</string>
+    <string name="status_projection_cancelled">Screen audio capture permission was cancelled</string>
+    <string name="status_capture_starting">Starting capture</string>
+    <string name="status_capture_stopping">Stopping</string>
+    <string name="status_running">Running</string>
+    <string name="status_not_running">Not running</string>
+
+    <string name="action_grant">Allow</string>
+    <string name="action_open_settings">Open</string>
+    <string name="action_start">Start</string>
+    <string name="action_stop">Stop</string>
+    <string name="action_pending_authorization">Setup</string>
+    <string name="action_reset">Reset</string>
+
+    <string name="capture_action_description_running">Capture is running. Tap to stop.</string>
+    <string name="capture_action_description_ready">Ready to capture. Tap to start.</string>
+    <string name="capture_action_description_locked">Required permissions are not complete yet.</string>
+
+    <string name="permission_audio_title">Audio playback capture</string>
+    <string name="permission_audio_description">Captures game audio through Android AudioPlaybackCapture. Microphone speech is not recorded.</string>
+    <string name="permission_overlay_title">Invisible overlay keep-alive</string>
+    <string name="permission_overlay_description">Creates a transparent keep-alive window so the app can continue running behind a game. Nothing is shown on screen.</string>
+    <string name="permission_notification_title">Foreground service notification</string>
+    <string name="permission_notification_description">Android requires a persistent notification while audio capture is running, helping prevent the system from silently stopping the service.</string>
+    <string name="permission_granted">Allowed</string>
+    <string name="permission_pending">Needs authorization</string>
+
+    <string name="tuning_title">Haptic tuning</string>
+    <string name="tuning_noise_gate_title">Silence gate</string>
+    <string name="tuning_noise_gate_description">Higher values ignore floor noise, quiet music, and small sounds. Too high may miss subtle haptics.</string>
+    <string name="tuning_sensitivity_title">Haptic sensitivity</string>
+    <string name="tuning_sensitivity_description">Controls overall haptic strength and trigger aggressiveness. Higher values turn more audio into noticeable vibration.</string>
+    <string name="tuning_music_filter_title">Music filter</string>
+    <string name="tuning_music_filter_description">Higher values favor instant impacts such as gunfire, explosions, and collisions. Lower values follow sustained music and bass rhythm.</string>
+
+    <string name="service_no_projection_permission">Screen audio capture permission was not received</string>
+    <string name="service_projection_null">MediaProjection authorization object is empty</string>
+    <string name="service_running">Converting game audio into HD haptics</string>
+    <string name="service_permission_denied">Permission denied: %1$s</string>
+    <string name="service_start_failed">Failed to start capture: %1$s</string>
+    <string name="service_audio_record_init_failed">AudioRecord initialization failed</string>
+    <string name="service_capture_interrupted">Capture interrupted: %1$s</string>
+    <string name="service_stopped">Stopped</string>
+
+    <string name="notification_content_with_score">Analyzing game audio in real time. Haptic intensity %1$.1f</string>
+    <string name="notification_content_idle">Analyzing game audio and outputting haptics</string>
+    <string name="notification_title_running">GameHaptic is running</string>
+    <string name="notification_channel_name">GameHaptic capture</string>
+    <string name="notification_channel_description">Background capture status for game audio to haptics</string>
+</resources>

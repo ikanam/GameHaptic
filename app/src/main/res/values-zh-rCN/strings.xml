@@ -1,0 +1,54 @@
+<resources>
+    <string name="app_name">GameHaptic</string>
+    <string name="app_tagline">把游戏背景声音实时转换成震动反馈。</string>
+
+    <string name="status_waiting">等待启动</string>
+    <string name="status_projection_cancelled">屏幕音频捕获授权已取消</string>
+    <string name="status_capture_starting">正在启动采集</string>
+    <string name="status_capture_stopping">正在停止</string>
+    <string name="status_running">运行中</string>
+    <string name="status_not_running">未运行</string>
+
+    <string name="action_grant">授权</string>
+    <string name="action_open_settings">去开启</string>
+    <string name="action_start">开始</string>
+    <string name="action_stop">停止</string>
+    <string name="action_pending_authorization">待授权</string>
+    <string name="action_reset">重置</string>
+
+    <string name="capture_action_description_running">正在捕获，点击停止</string>
+    <string name="capture_action_description_ready">未运行，点击开始捕获</string>
+    <string name="capture_action_description_locked">权限未完成，暂不能开始捕获</string>
+
+    <string name="permission_audio_title">录音 / 播放捕获</string>
+    <string name="permission_audio_description">用于通过系统的 AudioPlaybackCapture 捕获游戏声音；不会录制麦克风说话声。</string>
+    <string name="permission_overlay_title">隐形悬浮窗保活</string>
+    <string name="permission_overlay_description">用于创建一个透明保活窗口，帮助 App 在游戏后台持续运行；不会显示在屏幕上。</string>
+    <string name="permission_notification_title">前台服务通知</string>
+    <string name="permission_notification_description">Android 要求持续捕获音频时显示常驻通知，用来避免后台服务被系统静默停止。</string>
+    <string name="permission_granted">已允许</string>
+    <string name="permission_pending">待授权</string>
+
+    <string name="tuning_title">震感调校</string>
+    <string name="tuning_noise_gate_title">静音门限</string>
+    <string name="tuning_noise_gate_description">越高越能忽略环境底噪、低音量音乐和细碎声音；太高会漏掉轻微震感。</string>
+    <string name="tuning_sensitivity_title">震动灵敏度</string>
+    <string name="tuning_sensitivity_description">控制整体震动强弱和触发积极程度；越高越容易把声音变成明显震动。</string>
+    <string name="tuning_music_filter_title">音乐过滤</string>
+    <string name="tuning_music_filter_description">越高越偏向枪声、爆炸、碰撞这类瞬间冲击；越低越会跟随持续音乐和低频节奏。</string>
+
+    <string name="service_no_projection_permission">没有拿到屏幕音频捕获授权</string>
+    <string name="service_projection_null">MediaProjection 授权对象为空</string>
+    <string name="service_running">正在把游戏声音转换为 HD 震动</string>
+    <string name="service_permission_denied">权限不足：%1$s</string>
+    <string name="service_start_failed">启动采集失败：%1$s</string>
+    <string name="service_audio_record_init_failed">AudioRecord 初始化失败</string>
+    <string name="service_capture_interrupted">采集运行中断：%1$s</string>
+    <string name="service_stopped">已停止</string>
+
+    <string name="notification_content_with_score">实时分析游戏声音，震感强度 %1$.1f</string>
+    <string name="notification_content_idle">实时分析游戏声音并输出震动</string>
+    <string name="notification_title_running">GameHaptic 正在运行</string>
+    <string name="notification_channel_name">GameHaptic 采集</string>
+    <string name="notification_channel_description">游戏声音转震动的后台采集状态</string>
+</resources>
