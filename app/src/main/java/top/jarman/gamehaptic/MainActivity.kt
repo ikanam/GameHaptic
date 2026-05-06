@@ -26,10 +26,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -50,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -341,10 +338,10 @@ private fun CaptureStatusAction(
     onStop: () -> Unit
 ) {
     val enabled = running || canStart
-    val icon = when {
-        running -> Icons.Filled.Stop
-        canStart -> Icons.Filled.PlayArrow
-        else -> Icons.Filled.Lock
+    val iconRes = when {
+        running -> R.drawable.ic_action_stop
+        canStart -> R.drawable.ic_action_play
+        else -> R.drawable.ic_action_lock
     }
     val description = when {
         running -> stringResource(R.string.capture_action_description_running)
@@ -373,7 +370,7 @@ private fun CaptureStatusAction(
         }
     ) {
         Icon(
-            imageVector = icon,
+            painter = painterResource(iconRes),
             contentDescription = description,
             tint = tint
         )
