@@ -2,16 +2,6 @@ name: Android Release Build
 
 on:
   workflow_dispatch:
-    inputs:
-      package_type:
-        description: "Package type to build"
-        required: true
-        default: "both"
-        type: choice
-        options:
-          - both
-          - apk
-          - aab
   push:
     tags:
       - "v*"
@@ -57,7 +47,6 @@ jobs:
         run: ./gradlew testDebugUnitTest
 
       - name: Build signed release APK
-        if: ${{ github.event_name == 'push' || github.event.inputs.package_type == 'apk' || github.event.inputs.package_type == 'both' }}
         env:
           RELEASE_STORE_FILE: ${{ runner.temp }}/release.jks
           RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
@@ -65,29 +54,11 @@ jobs:
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
         run: ./gradlew assembleRelease
 
-      - name: Build signed release AAB
-        if: ${{ github.event_name == 'push' || github.event.inputs.package_type == 'aab' || github.event.inputs.package_type == 'both' }}
-        env:
-          RELEASE_STORE_FILE: ${{ runner.temp }}/release.jks
-          RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
-          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
-          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
-        run: ./gradlew bundleRelease
-
       - name: Upload release APK
-        if: ${{ github.event_name == 'push' || github.event.inputs.package_type == 'apk' || github.event.inputs.package_type == 'both' }}
         uses: actions/upload-artifact@v4
         with:
           name: GameHaptic-release-apk
           path: app/build/outputs/apk/release/*.apk
-          if-no-files-found: error
-
-      - name: Upload release AAB
-        if: ${{ github.event_name == 'push' || github.event.inputs.package_type == 'aab' || github.event.inputs.package_type == 'both' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: GameHaptic-release-aab
-          path: app/build/outputs/bundle/release/*.aab
           if-no-files-found: error
 
       - name: Create GitHub Release
@@ -98,4 +69,3 @@ jobs:
           generate_release_notes: true
           files: |
             app/build/outputs/apk/release/*.apk
-            app/build/outputs/bundle/release/*.aab
