@@ -6,7 +6,7 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 
 data class HapticConfig(
-    val noiseGate: Float = 0.035f,
+    val noiseGate: Float = 0.054f,
     val sensitivity: Float = 1.15f,
     val transientFocus: Float = 0.7f
 ) {
