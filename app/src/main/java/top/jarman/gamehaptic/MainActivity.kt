@@ -56,7 +56,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import top.jarman.gamehaptic.audio.HapticConfig
+import top.jarman.gamehaptic.audio.HapticConfigStore
 import top.jarman.gamehaptic.service.AudioCaptureService
+import top.jarman.gamehaptic.service.CaptureStatusMessage
 import top.jarman.gamehaptic.service.CaptureStateStore
 import top.jarman.gamehaptic.ui.theme.GameHapticTheme
 import java.util.Locale
@@ -64,7 +66,8 @@ import java.util.Locale
 class MainActivity : ComponentActivity() {
     private var permissionRefresh by mutableIntStateOf(0)
     private var isServiceRunning by mutableStateOf(false)
-    private var serviceMessage by mutableStateOf("")
+    private var serviceMessage by mutableStateOf(CaptureStatusMessage.WAITING)
+    private var serviceMessageDetail by mutableStateOf("")
     private var hapticConfig by mutableStateOf(HapticConfig())
 
     private val projectionLauncher = registerForActivityResult(
@@ -74,7 +77,8 @@ class MainActivity : ComponentActivity() {
         if (result.resultCode == RESULT_OK && data != null) {
             startCaptureService(result.resultCode, data)
         } else {
-            serviceMessage = getString(R.string.status_projection_cancelled)
+            serviceMessage = CaptureStatusMessage.PROJECTION_CANCELLED
+            serviceMessageDetail = ""
         }
     }
 
@@ -94,12 +98,16 @@ class MainActivity : ComponentActivity() {
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action != AudioCaptureService.ACTION_STATE) return
             isServiceRunning = intent.getBooleanExtra(AudioCaptureService.EXTRA_RUNNING, false)
-            serviceMessage = intent.getStringExtra(AudioCaptureService.EXTRA_MESSAGE).orEmpty()
+            serviceMessage = intent.getStringExtra(AudioCaptureService.EXTRA_MESSAGE_CODE)?.let { rawValue ->
+                runCatching { CaptureStatusMessage.valueOf(rawValue) }.getOrNull()
+            } ?: CaptureStatusMessage.WAITING
+            serviceMessageDetail = intent.getStringExtra(AudioCaptureService.EXTRA_MESSAGE_DETAIL).orEmpty()
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        hapticConfig = HapticConfigStore.read(this)
         enableEdgeToEdge()
         setContent {
             GameHapticTheme {
@@ -108,9 +116,12 @@ class MainActivity : ComponentActivity() {
                     config = hapticConfig,
                     running = isServiceRunning,
                     message = serviceMessage,
+                    messageDetail = serviceMessageDetail,
                     onConfigChange = { config ->
-                        hapticConfig = config
-                        updateServiceConfig(config)
+                        val normalized = config.normalized()
+                        hapticConfig = normalized
+                        HapticConfigStore.write(this, normalized)
+                        updateServiceConfig(normalized)
                     },
                     onRequestAudio = { requestAudioPermission() },
                     onRequestOverlay = { openOverlaySettings() },
@@ -179,7 +190,8 @@ class MainActivity : ComponentActivity() {
             .putHapticConfig(hapticConfig)
         ContextCompat.startForegroundService(this, intent)
         isServiceRunning = true
-        serviceMessage = getString(R.string.status_capture_starting)
+        serviceMessage = CaptureStatusMessage.CAPTURE_STARTING
+        serviceMessageDetail = ""
     }
 
     private fun stopCaptureService() {
@@ -188,7 +200,8 @@ class MainActivity : ComponentActivity() {
                 .setAction(AudioCaptureService.ACTION_STOP)
         )
         isServiceRunning = false
-        serviceMessage = getString(R.string.status_capture_stopping)
+        serviceMessage = CaptureStatusMessage.CAPTURE_STOPPING
+        serviceMessageDetail = ""
     }
 
     private fun updateServiceConfig(config: HapticConfig) {
@@ -204,6 +217,7 @@ class MainActivity : ComponentActivity() {
         val state = CaptureStateStore.read(this)
         isServiceRunning = state.running
         serviceMessage = state.message
+        serviceMessageDetail = state.detail
     }
 
     private fun Intent.putHapticConfig(config: HapticConfig): Intent = apply {
@@ -228,7 +242,8 @@ private fun GameHapticScreen(
     permissionRefresh: Int,
     config: HapticConfig,
     running: Boolean,
-    message: String,
+    message: CaptureStatusMessage,
+    messageDetail: String,
     onConfigChange: (HapticConfig) -> Unit,
     onRequestAudio: () -> Unit,
     onRequestOverlay: () -> Unit,
@@ -280,7 +295,11 @@ private fun GameHapticScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            StatusCard(running = running, message = message)
+            StatusCard(
+                running = running,
+                message = message,
+                messageDetail = messageDetail
+            )
 
             PermissionCard(
                 title = stringResource(R.string.permission_audio_title),
@@ -367,7 +386,11 @@ private fun CaptureStatusAction(
 }
 
 @Composable
-private fun StatusCard(running: Boolean, message: String) {
+private fun StatusCard(
+    running: Boolean,
+    message: CaptureStatusMessage,
+    messageDetail: String
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -392,7 +415,7 @@ private fun StatusCard(running: Boolean, message: String) {
                 fontWeight = FontWeight.SemiBold
             )
             Text(
-                text = message.ifBlank { stringResource(R.string.status_waiting) },
+                text = stringResourceForCaptureStatus(message, messageDetail),
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -545,6 +568,25 @@ private fun formatPercent(value: Float): String =
 private fun formatOneDecimal(value: Float): String =
     String.format(Locale.US, "%.1f", value)
 
+@Composable
+private fun stringResourceForCaptureStatus(
+    message: CaptureStatusMessage,
+    detail: String
+): String =
+    when (message) {
+        CaptureStatusMessage.WAITING -> stringResource(R.string.status_waiting)
+        CaptureStatusMessage.PROJECTION_CANCELLED -> stringResource(R.string.status_projection_cancelled)
+        CaptureStatusMessage.CAPTURE_STARTING -> stringResource(R.string.status_capture_starting)
+        CaptureStatusMessage.CAPTURE_STOPPING -> stringResource(R.string.status_capture_stopping)
+        CaptureStatusMessage.NO_PROJECTION_PERMISSION -> stringResource(R.string.service_no_projection_permission)
+        CaptureStatusMessage.PROJECTION_NULL -> stringResource(R.string.service_projection_null)
+        CaptureStatusMessage.RUNNING -> stringResource(R.string.service_running)
+        CaptureStatusMessage.PERMISSION_DENIED -> stringResource(R.string.service_permission_denied, detail)
+        CaptureStatusMessage.START_FAILED -> stringResource(R.string.service_start_failed, detail)
+        CaptureStatusMessage.CAPTURE_INTERRUPTED -> stringResource(R.string.service_capture_interrupted, detail)
+        CaptureStatusMessage.STOPPED -> stringResource(R.string.service_stopped)
+    }
+
 @Preview(showBackground = true)
 @Composable
 private fun GameHapticScreenPreview() {
@@ -554,7 +596,8 @@ private fun GameHapticScreenPreview() {
                 permissionRefresh = 0,
                 config = HapticConfig(),
                 running = false,
-                message = "",
+                message = CaptureStatusMessage.WAITING,
+                messageDetail = "",
                 onConfigChange = {},
                 onRequestAudio = {},
                 onRequestOverlay = {},
