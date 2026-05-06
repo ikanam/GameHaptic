@@ -94,11 +94,12 @@ class HapticAudioAnalyzer(
         val levelEnergy = max(0f, rms - gate) * (1f - config.transientFocus * 0.65f)
         val eventEnergy = impactEnergy + levelEnergy
         val ceilingCandidate = max(rms, eventEnergy * 0.75f)
+        val ceilingFloor = min(gate * 2.1f, MAX_LOUDNESS_CEILING)
         loudnessCeiling = if (ceilingCandidate > loudnessCeiling) {
             loudnessCeiling * 0.88f + ceilingCandidate * 0.12f
         } else {
             loudnessCeiling * 0.997f + max(gate * 2.2f, ceilingCandidate) * 0.003f
-        }.coerceIn(gate * 2.1f, 0.65f)
+        }.coerceIn(ceilingFloor, MAX_LOUDNESS_CEILING)
 
         val dynamicRange = max(0.012f, loudnessCeiling - gate)
         val levelIntensity = ((rms - gate) / dynamicRange).coerceIn(0f, 2.5f)
@@ -133,5 +134,9 @@ class HapticAudioAnalyzer(
             attackAmplitude = attackAmplitude,
             releaseAmplitude = releaseAmplitude
         )
+    }
+
+    private companion object {
+        const val MAX_LOUDNESS_CEILING = 0.65f
     }
 }

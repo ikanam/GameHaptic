@@ -33,6 +33,24 @@ class HapticAudioAnalyzerTest {
         assertTrue("strong should also last longer", strong.durationMs > weak.durationMs)
     }
 
+    @Test
+    fun processDoesNotCrashWhenNoiseGateExceedsLoudnessCeilingFloor() {
+        val analyzer = HapticAudioAnalyzer(
+            sampleRate = SAMPLE_RATE,
+            initialConfig = HapticConfig(
+                noiseGate = 0.18f,
+                sensitivity = 2.5f,
+                transientFocus = 1f
+            )
+        )
+
+        repeat(120) {
+            analyzer.process(toneFrame(32_000), FRAME_SIZE)
+        }
+
+        assertTrue(true)
+    }
+
     private fun nextEvent(analyzer: HapticAudioAnalyzer, frame: ShortArray): HapticEvent {
         repeat(24) {
             analyzer.process(frame, frame.size)?.let { return it }
