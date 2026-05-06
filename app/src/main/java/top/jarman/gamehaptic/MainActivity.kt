@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import top.jarman.gamehaptic.audio.HapticConfig
 import top.jarman.gamehaptic.service.AudioCaptureService
+import top.jarman.gamehaptic.service.CaptureStateStore
 import top.jarman.gamehaptic.ui.theme.GameHapticTheme
 import java.util.Locale
 
@@ -129,10 +130,12 @@ class MainActivity : ComponentActivity() {
             IntentFilter(AudioCaptureService.ACTION_STATE),
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
+        syncServiceState()
     }
 
     override fun onResume() {
         super.onResume()
+        syncServiceState()
         permissionRefresh++
     }
 
@@ -195,6 +198,12 @@ class MainActivity : ComponentActivity() {
                 .setAction(AudioCaptureService.ACTION_UPDATE_CONFIG)
                 .putHapticConfig(config)
         )
+    }
+
+    private fun syncServiceState() {
+        val state = CaptureStateStore.read(this)
+        isServiceRunning = state.running
+        serviceMessage = state.message
     }
 
     private fun Intent.putHapticConfig(config: HapticConfig): Intent = apply {

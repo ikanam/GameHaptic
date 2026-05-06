@@ -307,6 +307,7 @@ class AudioCaptureService : Service() {
     }
 
     private fun publishState(running: Boolean, message: String) {
+        CaptureStateStore.write(this, running, message)
         sendBroadcast(
             Intent(ACTION_STATE)
                 .setPackage(packageName)
